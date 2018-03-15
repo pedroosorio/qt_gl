@@ -9,16 +9,20 @@ public:
     RenderEngine();
     ~RenderEngine();
     void setOpenGLContext(QOpenGLFunctions_4_0_Core *ctx) {gl = ctx;}
-    void init();
 
+    // Render Engine setup functions
+    void init();
     void attachMesh(Mesh *m);
     void renderMeshes();
 protected:
+    // Render functions
     void renderMesh(Mesh *mesh);
     void pre_render();
 private:
-    std::vector<Mesh *> meshes;
+    // Render engine GL context data
     QOpenGLFunctions_4_0_Core *gl;
+    // Render engine mesh list
+    std::vector<Mesh *> meshes;
 };
 
 #endif // RENDERENGINE_H

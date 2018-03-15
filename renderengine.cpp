@@ -15,7 +15,8 @@ RenderEngine::~RenderEngine()
 void RenderEngine::init()
 {
     for(auto mesh: meshes){
-        mesh->loadMesh(nullptr);
+        mesh->loadMesh();
+        mesh->loadShaders();
     }
 }
 

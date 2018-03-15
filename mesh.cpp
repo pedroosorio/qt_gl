@@ -3,8 +3,12 @@
 
 Mesh::Mesh()
 {
-    //setup gl
+    //setup mesh gl
     ref.m_vao = ref.m_vertCount = ref.m_pos_vbo = 0;
+    shaders.m_frag_shader = shaders.m_vertex_shader = nullptr;
+    shaders.m_shader_prog = nullptr;
+
+
     //simple quad mesh
     vertices.push_back(vertex(-0.3, -0.7, 0.0));
     vertices.push_back(vertex(0.5, 0.5, 0.0));
@@ -22,11 +26,16 @@ Mesh::~Mesh()
     gl->glDeleteBuffers(1, &ref.m_pos_vbo);
 }
 
-void Mesh::loadMesh(float mesh_verts[])
+void Mesh::loadMesh()
 {
     createVAO();
     pushToVAO();
     unbindVAO();
+}
+
+void Mesh::loadShaders()
+{
+
 }
 
 void Mesh::createVAO()

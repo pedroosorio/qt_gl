@@ -1,6 +1,5 @@
 #include "glwidget.h"
-
-GLuint vbo;
+#include "glm/gtc/matrix_transform.hpp"
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
@@ -41,3 +40,17 @@ void GLWidget::render()
     if(!engine) { glClearColor(1.0, 1.0, 1.0, 1.0); return; }
     engine->renderMeshes();
 }
+
+// Camera functions
+// ----------------------------------
+void Camera::lookAt(pos look_at)
+{
+    viewMatrix = glm::lookAt(m_pos, look_at, glm::vec3(0.0, 1.0, 0.0));
+}
+
+void Camera::updateMatrix()
+{
+    glm::vec3 ypr = glm::eulerAngles(m_orient);
+    viewMatrix = glm::yawPitchRoll(ypr.x, ypr.y, ypr.z)*glm::translate(glm::mat4(), m_pos);
+}
+// ----------------------------------
