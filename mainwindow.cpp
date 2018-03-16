@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     QLayout *central_layout = ui->centralWidget->layout();
+
     //Create QGLWidget
     widget = new GLWidget(parent);
     widget->setObjectName(QStringLiteral("glWidget"));

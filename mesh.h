@@ -6,11 +6,19 @@
 #include "ThirdParty/glm/gtx/quaternion.hpp"
 #include "ThirdParty/glm/gtx/euler_angles.hpp"
 #include <QOpenGLFunctions_4_0_Core>
-#include <QOpenGLShader>
-#include <QOpenGLShaderProgram>
 #include <vector>
+#include <string>
+#include <fstream>
+#include <iostream>
 
 #define POS_VAO_IDX 0
+
+// -----------------
+// FOR QT COMPATIBILITY
+#include <QFile>
+#include <QUrl>
+std::string read_qrc_file(std::string qrc);
+// -----------------
 
 typedef glm::vec3 pos;
 typedef glm::vec3 rot;
@@ -26,9 +34,9 @@ typedef struct MeshReference{
 } MeshReference;
 
 typedef struct MeshShaderReference{
-    QOpenGLShader *m_vertex_shader;
-    QOpenGLShader *m_frag_shader;
-    QOpenGLShaderProgram *m_shader_prog;
+    GLuint m_vertex_shader;
+    GLuint m_frag_shader;
+    GLuint m_shader_prog;
 } MeshShaderReference;
 
 class Mesh
@@ -43,16 +51,21 @@ public:
     int32_t getNumVerts() { return ref.m_vertCount; }
     MeshReference getMeshReference() { return ref; }
 
-
     // Utility mesh GL functions
-    void bindVAO();
-    void unbindVAO();
     void loadMesh();
-    void loadShaders();
+    bool loadShaders();
+    void renderMe();
 protected:
     // Mesh GL functions
     void createVAO();
     void pushToVAO();
+    void bindVAO();
+    void unbindVAO();
+    void cleanVAO();
+    bool createSHADER(std::string shader_code, GLenum type, GLuint &id);
+    void attachSHADERPROG();
+    void detachSHADERPROG();
+    void cleanSHADERPROG();
 private:
     // OpenGL context data
     MeshReference ref;

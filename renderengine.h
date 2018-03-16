@@ -2,6 +2,7 @@
 #define RENDERENGINE_H
 
 #include "mesh.h"
+#include <QDebug>
 
 class RenderEngine
 {
@@ -16,8 +17,9 @@ public:
     void renderMeshes();
 protected:
     // Render functions
-    void renderMesh(Mesh *mesh);
+    void render_mesh(Mesh *mesh);
     void pre_render();
+    void upload_camera_mat();
 private:
     // Render engine GL context data
     QOpenGLFunctions_4_0_Core *gl;

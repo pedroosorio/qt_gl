@@ -43,4 +43,8 @@ FORMS += \
         mainwindow.ui
 
 DISTFILES += \
-    Shaders/vertex_shader.vert
+    Shaders/vertex_shader.vert \
+    Shaders/fragment_shader.frag
+
+RESOURCES += \
+    res.qrc

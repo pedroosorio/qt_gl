@@ -19,6 +19,8 @@ void GLWidget::initializeGL()
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     if(engine) engine->init();
 }
@@ -51,6 +53,6 @@ void Camera::lookAt(pos look_at)
 void Camera::updateMatrix()
 {
     glm::vec3 ypr = glm::eulerAngles(m_orient);
-    viewMatrix = glm::yawPitchRoll(ypr.x, ypr.y, ypr.z)*glm::translate(glm::mat4(), m_pos);
+    viewMatrix = glm::translate(glm::mat4(), m_pos)*glm::yawPitchRoll(ypr.x, ypr.y, ypr.z);
 }
 // ----------------------------------

@@ -16,7 +16,9 @@ void RenderEngine::init()
 {
     for(auto mesh: meshes){
         mesh->loadMesh();
-        mesh->loadShaders();
+        if(!mesh->loadShaders()){
+            qDebug() << "Failed to load shaders for mesh.";
+        }
     }
 }
 
@@ -30,21 +32,17 @@ void RenderEngine::renderMeshes()
 {
     pre_render();
     for(auto mesh: meshes){
-        renderMesh(mesh);
+        render_mesh(mesh);
     }
 }
 
 void RenderEngine::pre_render()
 {
     gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    gl->glClearColor(1.0f, 0.3f, 0.0f, 0.0f);
+    gl->glClearColor(1.0f, 0.3f, 0.3f, 1.0f);
 }
 
-void RenderEngine::renderMesh(Mesh *mesh)
+void RenderEngine::render_mesh(Mesh *mesh)
 {
-    mesh->bindVAO();
-    gl->glEnableVertexAttribArray(POS_VAO_IDX);
-    gl->glDrawArrays(GL_TRIANGLES, 0, mesh->getNumVerts());
-    gl->glDisableVertexAttribArray(POS_VAO_IDX);
-    mesh->unbindVAO();
+    mesh->renderMe();
 }
