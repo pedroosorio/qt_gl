@@ -26,8 +26,12 @@ MainWindow::~MainWindow()
 void MainWindow::init()
 {
     engine = new RenderEngine();
-    mesh = new Mesh();
+    Model *model = new Model("");
 
     widget->attachRenderEngine(engine);
-    engine->attachMesh(mesh);
+    engine->attachModel(model);
+
+    timer = new QTimer();
+    connect(timer, SIGNAL(timeout()), widget, SLOT(update()));
+    timer->start(16);
 }

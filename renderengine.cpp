@@ -7,42 +7,40 @@ RenderEngine::RenderEngine()
 
 RenderEngine::~RenderEngine()
 {
-    for(auto mesh: meshes){
-        delete mesh;
+    for(auto model: models){
+        delete model;
     }
 }
 
 void RenderEngine::init()
 {
-    for(auto mesh: meshes){
-        mesh->loadMesh();
-        if(!mesh->loadShaders()){
-            qDebug() << "Failed to load shaders for mesh.";
-        }
+    for(auto model: models){
+        if(!model->init()) qDebug() << "Failed to load shaders for mesh.";
     }
 }
 
-void RenderEngine::attachMesh(Mesh *m)
+void RenderEngine::attachModel(Model *model)
 {
-    meshes.push_back(m);
-    m->setOpenGLContext(gl);
+    models.push_back(model);
+    model->setOpenGLContext(gl);
 }
 
-void RenderEngine::renderMeshes()
+void RenderEngine::renderModels()
 {
     pre_render();
-    for(auto mesh: meshes){
-        render_mesh(mesh);
+    for(auto model: models){
+        model->rotateBy(glm::vec3(0.01f, 0.0, 0.0));
+        render_model(model);
     }
 }
 
 void RenderEngine::pre_render()
 {
     gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    gl->glClearColor(1.0f, 0.3f, 0.3f, 1.0f);
+    gl->glClearColor(1.0f, 0.3f, 0.3f, 0.5f);
 }
 
-void RenderEngine::render_mesh(Mesh *mesh)
+void RenderEngine::render_model(Model *model)
 {
-    mesh->renderMe();
+    model->render();
 }

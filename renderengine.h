@@ -13,18 +13,18 @@ public:
 
     // Render Engine setup functions
     void init();
-    void attachMesh(Mesh *m);
-    void renderMeshes();
+    void attachModel(Model *model);
+    void renderModels();
 protected:
     // Render functions
-    void render_mesh(Mesh *mesh);
+    void render_model(Model *model);
     void pre_render();
     void upload_camera_mat();
 private:
     // Render engine GL context data
     QOpenGLFunctions_4_0_Core *gl;
-    // Render engine mesh list
-    std::vector<Mesh *> meshes;
+    // Render engine model list
+    std::vector<Model *> models;
 };
 
 #endif // RENDERENGINE_H

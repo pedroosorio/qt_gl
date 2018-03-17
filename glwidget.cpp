@@ -18,7 +18,6 @@ void GLWidget::initializeGL()
     initializeOpenGLFunctions();
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
     glEnable (GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -40,7 +39,7 @@ void GLWidget::resizeGL(int width, int height)
 void GLWidget::render()
 {
     if(!engine) { glClearColor(1.0, 1.0, 1.0, 1.0); return; }
-    engine->renderMeshes();
+    engine->renderModels();
 }
 
 // Camera functions

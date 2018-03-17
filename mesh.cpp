@@ -19,6 +19,7 @@ Mesh::Mesh()
     //setup mesh gl
     ref.m_vao = ref.m_vertCount = ref.m_pos_vbo = 0;
     shaders.m_frag_shader = shaders.m_vertex_shader = shaders.m_shader_prog = 0;
+    model_matrix_dirty = true;
 
     //simple quad mesh
     vertices.push_back(vertex(-0.5, -0.5, 0.0));
@@ -28,6 +29,10 @@ Mesh::Mesh()
     vertices.push_back(vertex(0.5, -0.5, 0.0));
     vertices.push_back(vertex(0.5, 0.5, 0.0));
     ref.m_vertCount = static_cast<int32_t>(vertices.size());
+
+    model_matrix = glm::translate(glm::mat4(), glm::vec3(0.0f , 0.0f , 0.0f)) *
+                   glm::yawPitchRoll(0.0f, 0.0f, 0.0f)*
+                   glm::scale(glm::mat4(), glm::vec3(1.0f , 1.0f , 1.0f));
 }
 
 Mesh::~Mesh()
@@ -51,6 +56,9 @@ bool Mesh::loadShaders()
     shaders.m_shader_prog = gl->glCreateProgram();
     gl->glAttachShader(shaders.m_shader_prog, shaders.m_vertex_shader);
     gl->glAttachShader(shaders.m_shader_prog, shaders.m_frag_shader);
+    gl->glBindAttribLocation(shaders.m_shader_prog, MMAT_IDX, MMAT_VARNAME);
+
+    // Link and verify linkage
     gl->glLinkProgram(shaders.m_shader_prog);
     GLint isLinked = 0;
     gl->glGetProgramiv(shaders.m_shader_prog, GL_LINK_STATUS, &isLinked);
@@ -66,6 +74,9 @@ bool Mesh::loadShaders()
     }
     gl->glDetachShader(shaders.m_shader_prog, shaders.m_vertex_shader);
     gl->glDetachShader(shaders.m_shader_prog, shaders.m_frag_shader);
+
+    // Retrieve final location of model matrix uniform
+    mmat_loc = gl->glGetUniformLocation(shaders.m_shader_prog, MMAT_VARNAME);
     return true;
 }
 
@@ -74,6 +85,11 @@ void Mesh::renderMe()
     bindVAO();
     gl->glEnableVertexAttribArray(POS_VAO_IDX);
     attachSHADERPROG();
+    // Update model matrix
+    if(model_matrix_dirty) {
+        loadUniform(mmat_loc, model_matrix);
+        model_matrix_dirty = false;
+    }
     gl->glDrawArrays(GL_TRIANGLES, 0, getNumVerts());
     gl->glDisableVertexAttribArray(POS_VAO_IDX);
     detachSHADERPROG();
@@ -161,3 +177,48 @@ void Mesh::cleanSHADERPROG()
 }
 
 
+void Mesh::loadUniform(GLuint loc, bool val)
+{
+    gl->glUniform1f(loc, val*1.0f);
+}
+
+void Mesh::loadUniform(GLuint loc, float val)
+{
+    gl->glUniform1f(loc, val);
+}
+
+void Mesh::loadUniform(GLuint loc, glm::vec3 val)
+{
+    gl->glUniform3f(loc, val.x, val.y, val.z);
+}
+
+void Mesh::loadUniform(GLuint loc, glm::mat4 val)
+{
+    gl->glUniformMatrix4fv(loc, 1, GL_FALSE, &val[0][0]);
+}
+
+
+Model::Model(std::vector<vertex> vertex_data)
+{
+    mesh = new Mesh();
+    Common();
+}
+
+Model::Model(std::string obj_file_path)
+{
+    mesh = new Mesh();
+    Common();
+}
+
+void Model::Common()
+{
+    position = pos(0.0, 0.0, 0.0);
+    rotation = rot(0.0, 0.0, 0.2);
+    scale = glm::vec3(1.0, 1.0, 1.0);
+    updateModel();
+}
+
+Model::~Model()
+{
+    delete mesh;
+}
