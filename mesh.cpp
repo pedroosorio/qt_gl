@@ -19,22 +19,67 @@ std::string read_qrc_file(std::string qrc){
 Mesh::Mesh()
 {
     //setup mesh gl
-    ref.m_vao = ref.m_vertCount = ref.m_pos_vbo = 0;
+    ref.m_vao = ref.m_vertCount = ref.m_vert_vbo = 0;
     shaders.m_frag_shader = shaders.m_vertex_shader = shaders.m_shader_prog = 0;
-    model_matrix_dirty = true;
+    model_matrix_dirty = color_dirty = true;
 
-    //simple quad mesh
-    vertices.push_back(glm::vec3(-0.5, -0.5, 0.0));
-    vertices.push_back(glm::vec3(0.5, 0.5, 0.0));
-    vertices.push_back(glm::vec3(-0.5, 0.5, 0.0));
-    vertices.push_back(glm::vec3(-0.5, -0.5, 0.0));
-    vertices.push_back(glm::vec3(0.5, -0.5, 0.0));
-    vertices.push_back(glm::vec3(0.5, 0.5, 0.0));
+    //simple cube mesh
+    glm::vec3 cube_vertices[] = {
+        glm::vec3(-0.5f,0.5f,-0.5f),
+        glm::vec3(-0.5f,-0.5f,-0.5f),
+        glm::vec3(0.5f,-0.5f,-0.5f),
+        glm::vec3(0.5f,0.5f,-0.5f),
+
+        glm::vec3(-0.5f,0.5f,0.5f),
+        glm::vec3(-0.5f,-0.5f,0.5f),
+        glm::vec3(0.5f,-0.5f,0.5f),
+        glm::vec3(0.5f,0.5f,0.5f),
+
+        glm::vec3(0.5f,0.5f,-0.5f),
+        glm::vec3(0.5f,-0.5f,-0.5f),
+        glm::vec3(0.5f,-0.5f,0.5f),
+        glm::vec3(0.5f,0.5f,0.5f),
+
+        glm::vec3(-0.5f,0.5f,-0.5f),
+        glm::vec3(-0.5f,-0.5f,-0.5f),
+        glm::vec3(-0.5f,-0.5f,0.5f),
+        glm::vec3(-0.5f,0.5f,0.5f),
+
+        glm::vec3(-0.5f,0.5f,0.5f),
+        glm::vec3(-0.5f,0.5f,-0.5f),
+        glm::vec3(0.5f,0.5f,-0.5f),
+        glm::vec3(0.5f,0.5f,0.5f),
+
+        glm::vec3(-0.5f,-0.5f,0.5f),
+        glm::vec3(-0.5f,-0.5f,-0.5f),
+        glm::vec3(0.5f,-0.5f,-0.5f),
+        glm::vec3(0.5f,-0.5f,0.5f)
+    };
+
+    GLuint cube_indices []= {
+        0,1,3,
+        3,1,2,
+        4,5,7,
+        7,5,6,
+        8,9,11,
+        11,9,10,
+        12,13,15,
+        15,13,14,
+        16,17,19,
+        19,17,18,
+        20,21,23,
+        23,21,22
+    };
+
+    vertices = std::vector<glm::vec3>(cube_vertices, cube_vertices + sizeof(cube_vertices) / sizeof(glm::vec3));
+    indices = std::vector<GLuint>(cube_indices, cube_indices + sizeof(cube_indices) / sizeof(GLuint));
+
     ref.m_vertCount = static_cast<int32_t>(vertices.size());
 
     model_matrix = glm::translate(glm::mat4(), glm::vec3(0.0f , 0.0f , 0.0f)) *
                    glm::yawPitchRoll(0.0f, 0.0f, 0.0f)*
                    glm::scale(glm::mat4(), glm::vec3(1.0f , 1.0f , 1.0f));
+    color = glm::vec3(0.5, 0.5, 0.5);
 }
 
 Mesh::~Mesh()
@@ -47,6 +92,12 @@ void Mesh::setModelMatrix(glm::mat4 mat)
 {
     model_matrix = mat;
     model_matrix_dirty = true;
+}
+
+void Mesh::setColor(glm::vec3 col)
+{
+    color = col;
+    color_dirty = true;
 }
 
 void Mesh::loadMesh()
@@ -65,6 +116,7 @@ bool Mesh::loadShaders()
     GLctx->glAttachShader(shaders.m_shader_prog, shaders.m_vertex_shader);
     GLctx->glAttachShader(shaders.m_shader_prog, shaders.m_frag_shader);
     GLctx->glBindAttribLocation(shaders.m_shader_prog, MMAT_IDX, MMAT_VARNAME);
+    GLctx->glBindAttribLocation(shaders.m_shader_prog, BCOLOR_IDX, BCOLOR_VARNAME);
 
     // Link and verify linkage
     GLctx->glLinkProgram(shaders.m_shader_prog);
@@ -85,21 +137,31 @@ bool Mesh::loadShaders()
 
     // Retrieve final location of model matrix uniform
     mmat_loc = GLctx->glGetUniformLocation(shaders.m_shader_prog, MMAT_VARNAME);
+    mbcolor_loc = GLctx->glGetUniformLocation(shaders.m_shader_prog, BCOLOR_VARNAME);
     return true;
 }
 
 void Mesh::renderMe()
 {
     bindVAO();
-    GLctx->glEnableVertexAttribArray(POS_VAO_IDX);
+    GLctx->glEnableVertexAttribArray(VERTEX_VAO_IDX);
     attachSHADERPROG();
-    // Update model matrix
+
     if(model_matrix_dirty) {
         loadUniform(mmat_loc, model_matrix);
         model_matrix_dirty = false;
     }
-    GLctx->glDrawArrays(GL_TRIANGLES, 0, getNumVerts());
-    GLctx->glDisableVertexAttribArray(POS_VAO_IDX);
+
+    if(color_dirty) {
+        loadUniform(mbcolor_loc, color);
+        color_dirty = false;
+    }
+
+    if(indices.size()){
+        GLctx->glDrawElements( GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, (void*)0);
+    } else GLctx->glDrawArrays(GL_TRIANGLES, 0, ref.m_vertCount);
+
+    GLctx->glDisableVertexAttribArray(VERTEX_VAO_IDX);
     detachSHADERPROG();
     unbindVAO();
 }
@@ -113,27 +175,55 @@ void Mesh::createVAO()
 
 void Mesh::pushToVAO()
 {
-    GLctx->glGenBuffers(1, &ref.m_pos_vbo);
-    GLctx->glBindBuffer(GL_ARRAY_BUFFER, ref.m_pos_vbo);
-    GLctx->glBufferData(GL_ARRAY_BUFFER, ref.m_vertCount * sizeof(glm::vec3), &vertices[0], GL_DYNAMIC_DRAW);
-    GLctx->glVertexAttribPointer(POS_VAO_IDX, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    if(vertices.size() > 0){
+        GLctx->glGenBuffers(1, &ref.m_vert_vbo);
+        GLctx->glBindBuffer(GL_ARRAY_BUFFER, ref.m_vert_vbo);
+        GLctx->glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+        GLctx->glVertexAttribPointer(VERTEX_VAO_IDX, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        GLctx->glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    if(indices.size() > 0){
+        GLctx->glGenBuffers(1, &ref.m_idx_vbo);
+        GLctx->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ref.m_idx_vbo);
+        GLctx->glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+        GLctx->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+}
+
+void Mesh::updateVBO()
+{
+    if(vertices.size() > 0){
+        GLctx->glBindBuffer(GL_ARRAY_BUFFER, ref.m_vert_vbo);
+        GLctx->glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+        GLctx->glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    if(indices.size() > 0){
+        GLctx->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ref.m_idx_vbo);
+        GLctx->glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+        GLctx->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
 }
 
 void Mesh::bindVAO()
 {
     GLctx->glBindVertexArray(ref.m_vao);
+    if(indices.size() > 0) GLctx->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ref.m_idx_vbo);
 }
 
 void Mesh::unbindVAO()
 {
     GLctx->glBindVertexArray(0);
+    if(indices.size() > 0) GLctx->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Mesh::cleanVAO()
 {
     unbindVAO();
     GLctx->glDeleteVertexArrays(1, &ref.m_vao);
-    GLctx->glDeleteBuffers(1, &ref.m_pos_vbo);
+    GLctx->glDeleteBuffers(1, &ref.m_vert_vbo);
+    GLctx->glDeleteBuffers(1, &ref.m_idx_vbo);
 }
 
 bool Mesh::createSHADER(std::string shader_code, GLenum type, GLuint &id)

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QColor>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -34,4 +35,11 @@ void MainWindow::init()
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), widget, SLOT(update()));
     timer->start(16);
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    scene->getModel(0)->setColor(glm::vec3(static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+                                           static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+                                           static_cast <float> (rand()) / static_cast <float> (RAND_MAX)));
 }

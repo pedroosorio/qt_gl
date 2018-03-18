@@ -14,7 +14,7 @@
 #include <iostream>
 
 // VAO Indexes
-#define POS_VAO_IDX 0
+#define VERTEX_VAO_IDX 0
 
 // Uniform variable names and locations
 #define MMAT_VARNAME "m_mat"
@@ -24,6 +24,8 @@
 #define PMAT_VARNAME "p_mat"
 #define PMAT_IDX 2
 
+#define BCOLOR_VARNAME "base_color"
+#define BCOLOR_IDX 3
 // -----------------
 // FOR QT COMPATIBILITY
 #include <QFile>
@@ -34,7 +36,8 @@ std::string read_qrc_file(std::string qrc);
 typedef struct MeshReference{
     GLuint m_vao;
     int32_t m_vertCount;
-    GLuint m_pos_vbo;
+    GLuint m_vert_vbo;
+    GLuint m_idx_vbo;
 } MeshReference;
 
 typedef struct MeshShaderReference{
@@ -56,17 +59,21 @@ public:
 
     // Utility mesh GL functions
     void setModelMatrix(glm::mat4 mat);
+    void setColor(glm::vec3 col);
 protected:
     friend class Model;
 
     // Mesh GL functions
     void createVAO();
     void pushToVAO();
+    void updateVBO();
     void bindVAO();
     void unbindVAO();
     void cleanVAO();
+
     void loadMesh();
     bool loadShaders();
+
     void renderMe();
 
     bool createSHADER(std::string shader_code, GLenum type, GLuint &id);
@@ -80,11 +87,9 @@ protected:
     void loadUniform(GLuint loc, glm::vec3 val);
     void loadUniform(GLuint loc, glm::mat4 val);
 
-    // Static uniform locations
-    GLuint mmat_loc;
-
     // Aux
     bool model_matrix_dirty;
+    bool color_dirty;
 private:
     // OpenGL context data
     MeshReference ref;
@@ -92,9 +97,12 @@ private:
     MeshShaderReference shaders;
     // Mesh data
     std::vector<glm::vec3> vertices;
+    std::vector<GLuint> indices;
     glm::mat4 model_matrix;
+    glm::vec3 color;
+    // Static uniform locations
+    GLuint mmat_loc;
+    GLuint mbcolor_loc;
 };
-
-
 
 #endif // MESH_H
