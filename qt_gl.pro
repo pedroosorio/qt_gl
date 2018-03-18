@@ -31,13 +31,20 @@ SOURCES += \
         mainwindow.cpp \
     glwidget.cpp \
     mesh.cpp \
-    renderengine.cpp
+    renderengine.cpp \
+    scene.cpp \
+    camera.cpp \
+    model.cpp
 
 HEADERS += \
         mainwindow.h \
     glwidget.h \
     mesh.h \
-    renderengine.h
+    renderengine.h \
+    scene.h \
+    camera.h \
+    model.h \
+    context.h
 
 FORMS += \
         mainwindow.ui

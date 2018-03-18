@@ -3,7 +3,9 @@
 
 #include <QMainWindow>
 #include <QTimer>
+
 #include "glwidget.h"
+#include "scene.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,7 +21,7 @@ public:
 private:
     Ui::MainWindow *ui;
     GLWidget *widget;
-    RenderEngine *engine;
+    Scene *scene;
 
     //Temp
     QTimer *timer;

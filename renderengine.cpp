@@ -1,31 +1,18 @@
 #include "renderengine.h"
 
+extern QOpenGLFunctions_4_0_Core *GLctx;
+
 RenderEngine::RenderEngine()
 {
-    gl = nullptr;
+
 }
 
 RenderEngine::~RenderEngine()
 {
-    for(auto model: models){
-        delete model;
-    }
+
 }
 
-void RenderEngine::init()
-{
-    for(auto model: models){
-        if(!model->init()) qDebug() << "Failed to load shaders for mesh.";
-    }
-}
-
-void RenderEngine::attachModel(Model *model)
-{
-    models.push_back(model);
-    model->setOpenGLContext(gl);
-}
-
-void RenderEngine::renderModels()
+void RenderEngine::renderModels(std::vector<Model *>& models)
 {
     pre_render();
     for(auto model: models){
@@ -36,8 +23,8 @@ void RenderEngine::renderModels()
 
 void RenderEngine::pre_render()
 {
-    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    gl->glClearColor(1.0f, 0.3f, 0.3f, 0.5f);
+    GLctx->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    GLctx->glClearColor(1.0f, 0.3f, 0.3f, 0.5f);
 }
 
 void RenderEngine::render_model(Model *model)

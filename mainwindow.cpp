@@ -18,18 +18,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete engine;
+    delete scene;
     delete widget;
     delete ui;
 }
 
 void MainWindow::init()
 {
-    engine = new RenderEngine();
+    scene = new Scene();
     Model *model = new Model("");
 
-    widget->attachRenderEngine(engine);
-    engine->attachModel(model);
+    widget->setScene(scene);
+    scene->attachModel(model);
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), widget, SLOT(update()));

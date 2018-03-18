@@ -1,5 +1,6 @@
 #include "glwidget.h"
-#include "glm/gtc/matrix_transform.hpp"
+
+extern QOpenGLFunctions_4_0_Core *GLctx;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
@@ -10,7 +11,13 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setSwapInterval(0);
     setFormat(format);
-    engine = nullptr;
+    GLctx = this;
+    scene = nullptr;
+}
+
+void GLWidget::setScene(Scene *s)
+{
+    scene = s;
 }
 
 void GLWidget::initializeGL()
@@ -20,14 +27,14 @@ void GLWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glEnable (GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    if(engine) engine->init();
+    if(scene) scene->init();
 }
 
 void GLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    render();
+    if(!scene) { glClearColor(1.0, 1.0, 1.0, 1.0); return; }
+    scene->renderScene();
 }
 
 void GLWidget::resizeGL(int width, int height)
@@ -35,23 +42,3 @@ void GLWidget::resizeGL(int width, int height)
     float retinaScale = devicePixelRatio();
     glViewport(GLint(0), GLint(0), GLsizei(width * retinaScale), GLsizei(height * retinaScale));
 }
-
-void GLWidget::render()
-{
-    if(!engine) { glClearColor(1.0, 1.0, 1.0, 1.0); return; }
-    engine->renderModels();
-}
-
-// Camera functions
-// ----------------------------------
-void Camera::lookAt(pos look_at)
-{
-    viewMatrix = glm::lookAt(m_pos, look_at, glm::vec3(0.0, 1.0, 0.0));
-}
-
-void Camera::updateMatrix()
-{
-    glm::vec3 ypr = glm::eulerAngles(m_orient);
-    viewMatrix = glm::translate(glm::mat4(), m_pos)*glm::yawPitchRoll(ypr.x, ypr.y, ypr.z);
-}
-// ----------------------------------

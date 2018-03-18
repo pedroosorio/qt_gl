@@ -1,12 +1,13 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "ThirdParty/glm/glm.hpp"
-#include "ThirdParty/glm/gtc/matrix_transform.hpp"
-#include "ThirdParty/glm/gtc/quaternion.hpp"
-#include "ThirdParty/glm/gtx/quaternion.hpp"
-#include "ThirdParty/glm/gtx/euler_angles.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
+#include "glm/gtx/euler_angles.hpp"
 #include <QOpenGLFunctions_4_0_Core>
+
 #include <vector>
 #include <string>
 #include <fstream>
@@ -30,13 +31,6 @@
 std::string read_qrc_file(std::string qrc);
 // -----------------
 
-typedef glm::vec3 pos;
-typedef glm::vec3 rot;
-typedef glm::quat orient;
-typedef glm::vec3 vertex;
-typedef glm::vec3 c_rgb;
-typedef glm::vec4 c_rgba;
-
 typedef struct MeshReference{
     GLuint m_vao;
     int32_t m_vertCount;
@@ -54,7 +48,6 @@ class Mesh
 public:
     Mesh();
     ~Mesh();
-    void setOpenGLContext(QOpenGLFunctions_4_0_Core *ctx) {gl = ctx;}
 
     // Mesh information getters
     int32_t getVAO() { return ref.m_vao; }
@@ -62,7 +55,7 @@ public:
     MeshReference getMeshReference() { return ref; }
 
     // Utility mesh GL functions
-    void setModelMatrix(glm::mat4 mat) { model_matrix = mat; model_matrix_dirty = true; }
+    void setModelMatrix(glm::mat4 mat);
 protected:
     friend class Model;
 
@@ -95,67 +88,13 @@ protected:
 private:
     // OpenGL context data
     MeshReference ref;
-    QOpenGLFunctions_4_0_Core *gl;
     // OpenGL shaders
     MeshShaderReference shaders;
     // Mesh data
-    std::vector<vertex> vertices;
+    std::vector<glm::vec3> vertices;
     glm::mat4 model_matrix;
 };
 
 
-class Model
-{
 
-public:
-    Model(std::vector<vertex> vertex_data);
-    Model(std::string obj_file_path);
-    ~Model();
-    void setOpenGLContext(QOpenGLFunctions_4_0_Core *ctx) {gl = ctx; if(mesh) mesh->setOpenGLContext(ctx);}
-
-    void translateBy(pos translation) { position += translation; setDirty(); }
-    void rotateBy(rot rots) { rotation += rots; setDirty(); }
-    void scaleBy(glm::vec3 scals) { scale += scals; setDirty(); }
-
-    void setModelPosition(pos new_pos) { position = new_pos; setDirty(); }
-    pos getModelPosition() { return position; }
-    void setModelRotation(rot new_rot) { position = new_rot; setDirty(); }
-    rot getModelRotation() { return rotation; }
-    void setModelScale(glm::vec3 new_scale) { scale = new_scale; setDirty(); }
-    pos getModelScale() { return scale; }
-
-    void updateModel(){
-        if(!mesh) return;
-        setDirty();
-    }
-
-    void render() {
-        if(!mesh) return;
-        if(dirty) mesh->setModelMatrix(glm::translate(glm::mat4(), position) *
-                                       glm::yawPitchRoll(rotation.x, rotation.y, rotation.z)*
-                                       glm::scale(glm::mat4(),scale));
-        dirty = false;
-        mesh->renderMe();
-    }
-
-    bool init() {
-        if(!mesh) return false;
-        mesh->loadMesh();
-        if(!mesh->loadShaders()) return false;
-        return true;
-    }
-
-protected:
-    void Common();
-    void setDirty() { mesh->model_matrix_dirty = dirty = true; }
-private:
-    // OpenGL context data
-    Mesh *mesh;
-    QOpenGLFunctions_4_0_Core *gl;
-    // Model data
-    pos position;
-    rot rotation;
-    glm::vec3 scale;
-    bool dirty;
-};
 #endif // MESH_H
