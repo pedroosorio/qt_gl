@@ -20,6 +20,8 @@ void GLWidget::setScene(Scene *s)
     scene = s;
 }
 
+// ---------------------------------------------------
+
 void GLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
@@ -42,3 +44,5 @@ void GLWidget::resizeGL(int width, int height)
     float retinaScale = devicePixelRatio();
     glViewport(GLint(0), GLint(0), GLsizei(width * retinaScale), GLsizei(height * retinaScale));
 }
+
+// ---------------------------------------------------

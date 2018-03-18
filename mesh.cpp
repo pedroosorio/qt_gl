@@ -1,6 +1,5 @@
 #include "mesh.h"
 #include "qopengl.h"
-#include <QDebug>
 
 extern QOpenGLFunctions_4_0_Core *GLctx;
 
@@ -16,12 +15,11 @@ std::string read_qrc_file(std::string qrc){
     return in.readAll().toStdString();
 }
 
-Mesh::Mesh()
+Mesh::Mesh() : model_matrix("model_matrix"), color("color")
 {
     //setup mesh gl
     ref.m_vao = ref.m_vertCount = ref.m_vert_vbo = 0;
     shaders.m_frag_shader = shaders.m_vertex_shader = shaders.m_shader_prog = 0;
-    model_matrix_dirty = color_dirty = true;
 
     //simple cube mesh
     glm::vec3 cube_vertices[] = {
@@ -76,10 +74,10 @@ Mesh::Mesh()
 
     ref.m_vertCount = static_cast<int32_t>(vertices.size());
 
-    model_matrix = glm::translate(glm::mat4(), glm::vec3(0.0f , 0.0f , 0.0f)) *
-                   glm::yawPitchRoll(0.0f, 0.0f, 0.0f)*
-                   glm::scale(glm::mat4(), glm::vec3(1.0f , 1.0f , 1.0f));
-    color = glm::vec3(0.5, 0.5, 0.5);
+    model_matrix.setProperty(glm::translate(glm::mat4(), glm::vec3(0.0f , 0.0f , 0.0f)) *
+                            glm::yawPitchRoll(0.0f, 0.0f, 0.0f)*
+                            glm::scale(glm::mat4(), glm::vec3(1.0f , 1.0f , 1.0f)));
+    color.setProperty(glm::vec3(0.5, 0.5, 0.5));
 }
 
 Mesh::~Mesh()
@@ -88,17 +86,25 @@ Mesh::~Mesh()
     cleanSHADERPROG();
 }
 
+// ---------------------------------------------------
+
+void Mesh::setDirty()
+{
+    model_matrix.setDirty();
+    color.setDirty();
+}
+
 void Mesh::setModelMatrix(glm::mat4 mat)
 {
-    model_matrix = mat;
-    model_matrix_dirty = true;
+    model_matrix.setProperty(mat);
 }
 
 void Mesh::setColor(glm::vec3 col)
 {
-    color = col;
-    color_dirty = true;
+    color.setProperty(col);
 }
+
+// ---------------------------------------------------
 
 void Mesh::loadMesh()
 {
@@ -136,8 +142,8 @@ bool Mesh::loadShaders()
     GLctx->glDetachShader(shaders.m_shader_prog, shaders.m_frag_shader);
 
     // Retrieve final location of model matrix uniform
-    mmat_loc = GLctx->glGetUniformLocation(shaders.m_shader_prog, MMAT_VARNAME);
-    mbcolor_loc = GLctx->glGetUniformLocation(shaders.m_shader_prog, BCOLOR_VARNAME);
+    model_matrix.setUniformLocation(GLctx->glGetUniformLocation(shaders.m_shader_prog, MMAT_VARNAME));
+    color.setUniformLocation(GLctx->glGetUniformLocation(shaders.m_shader_prog, BCOLOR_VARNAME));
     return true;
 }
 
@@ -147,15 +153,8 @@ void Mesh::renderMe()
     GLctx->glEnableVertexAttribArray(VERTEX_VAO_IDX);
     attachSHADERPROG();
 
-    if(model_matrix_dirty) {
-        loadUniform(mmat_loc, model_matrix);
-        model_matrix_dirty = false;
-    }
-
-    if(color_dirty) {
-        loadUniform(mbcolor_loc, color);
-        color_dirty = false;
-    }
+    model_matrix.update();
+    color.update();
 
     if(indices.size()){
         GLctx->glDrawElements( GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, (void*)0);
@@ -226,6 +225,8 @@ void Mesh::cleanVAO()
     GLctx->glDeleteBuffers(1, &ref.m_idx_vbo);
 }
 
+// ---------------------------------------------------
+
 bool Mesh::createSHADER(std::string shader_code, GLenum type, GLuint &id)
 {
     shader_code += '\0';
@@ -274,26 +275,28 @@ void Mesh::cleanSHADERPROG()
     GLctx->glDeleteProgram(shaders.m_shader_prog);
 }
 
+// ---------------------------------------------------
 
-void Mesh::loadUniform(GLuint loc, bool val)
+template<typename T>
+void MeshProperty<T>::loadUniform(GLuint loc, bool val)
 {
     GLctx->glUniform1f(loc, val*1.0f);
 }
-
-void Mesh::loadUniform(GLuint loc, float val)
+template<typename T>
+void MeshProperty<T>::loadUniform(GLuint loc, float val)
 {
     GLctx->glUniform1f(loc, val);
 }
-
-void Mesh::loadUniform(GLuint loc, glm::vec3 val)
+template<typename T>
+void MeshProperty<T>::loadUniform(GLuint loc, glm::vec3 val)
 {
     GLctx->glUniform3f(loc, val.x, val.y, val.z);
 }
-
-void Mesh::loadUniform(GLuint loc, glm::mat4 val)
+template<typename T>
+void MeshProperty<T>::loadUniform(GLuint loc, glm::mat4 val)
 {
     GLctx->glUniformMatrix4fv(loc, 1, GL_FALSE, &val[0][0]);
 }
 
-
+// ---------------------------------------------------
 

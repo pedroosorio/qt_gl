@@ -8,6 +8,8 @@
 #include "glm/gtx/euler_angles.hpp"
 #include <QOpenGLFunctions_4_0_Core>
 
+#include <QDebug>
+
 #include <vector>
 #include <string>
 #include <fstream>
@@ -46,6 +48,48 @@ typedef struct MeshShaderReference{
     GLuint m_shader_prog;
 } MeshShaderReference;
 
+template <typename T>
+class MeshProperty{
+public:
+    MeshProperty(std::string n){
+        name = n;
+        dirty = false;
+    }
+    MeshProperty(T &p, std::string n){
+        prop = p;
+        name = n;
+        dirty = true;
+    }
+    ~MeshProperty(){}
+
+    void setUniformLocation(GLuint loc){
+        location = loc;
+    }
+    void setProperty(T p){
+        prop = p;
+        dirty = true;
+    }
+    T& getProperty() { return prop; }
+    bool isDirty() { return dirty; }
+    void setDirty() { dirty = true; }
+    void update(){
+        if(!dirty) return;
+        loadUniform(location, prop);
+        dirty = false;
+    }
+protected:
+    // Uniform Utility functions
+    void loadUniform(GLuint loc, bool val);
+    void loadUniform(GLuint loc, float val);
+    void loadUniform(GLuint loc, glm::vec3 val);
+    void loadUniform(GLuint loc, glm::mat4 val);
+private:
+    T prop;
+    std::string name;
+    GLuint location;
+    bool dirty;
+};
+
 class Mesh
 {
 public:
@@ -58,6 +102,7 @@ public:
     MeshReference getMeshReference() { return ref; }
 
     // Utility mesh GL functions
+    void setDirty();
     void setModelMatrix(glm::mat4 mat);
     void setColor(glm::vec3 col);
 protected:
@@ -80,16 +125,6 @@ protected:
     void attachSHADERPROG();
     void detachSHADERPROG();
     void cleanSHADERPROG();
-
-    // Uniform Utility functions
-    void loadUniform(GLuint loc, bool val);
-    void loadUniform(GLuint loc, float val);
-    void loadUniform(GLuint loc, glm::vec3 val);
-    void loadUniform(GLuint loc, glm::mat4 val);
-
-    // Aux
-    bool model_matrix_dirty;
-    bool color_dirty;
 private:
     // OpenGL context data
     MeshReference ref;
@@ -98,11 +133,8 @@ private:
     // Mesh data
     std::vector<glm::vec3> vertices;
     std::vector<GLuint> indices;
-    glm::mat4 model_matrix;
-    glm::vec3 color;
-    // Static uniform locations
-    GLuint mmat_loc;
-    GLuint mbcolor_loc;
+    MeshProperty<glm::mat4> model_matrix;
+    MeshProperty<glm::vec3> color;
 };
 
 #endif // MESH_H
