@@ -12,11 +12,12 @@ RenderEngine::~RenderEngine()
 
 }
 
-void RenderEngine::renderModels(std::vector<Model *>& models)
+void RenderEngine::renderModels(std::vector<Model *>& models, Camera *cam)
 {
     pre_render();
+    camera_to_render = cam;
     for(auto model: models){
-        model->rotateBy(glm::vec3(0.01f, 0.0, 0.0));
+        model->rotateBy(glm::vec3(0.1, 0.0, 0.0));
         render_model(model);
     }
 }
@@ -29,5 +30,5 @@ void RenderEngine::pre_render()
 
 void RenderEngine::render_model(Model *model)
 {
-    model->render();
+    model->render(camera_to_render);
 }

@@ -26,8 +26,8 @@
 #define PMAT_VARNAME "p_mat"
 #define PMAT_IDX 2
 
-#define BCOLOR_VARNAME "base_color"
-#define BCOLOR_IDX 3
+#define MCOLOR_VARNAME "m_color"
+#define MCOLOR_IDX 3
 // -----------------
 // FOR QT COMPATIBILITY
 #include <QFile>
@@ -49,18 +49,18 @@ typedef struct MeshShaderReference{
 } MeshShaderReference;
 
 template <typename T>
-class MeshProperty{
+class Property{
 public:
-    MeshProperty(std::string n){
+    Property(std::string n){
         name = n;
         dirty = false;
     }
-    MeshProperty(T &p, std::string n){
+    Property(T &p, std::string n){
         prop = p;
         name = n;
         dirty = true;
     }
-    ~MeshProperty(){}
+    ~Property(){}
 
     void setUniformLocation(GLuint loc){
         location = loc;
@@ -105,6 +105,8 @@ public:
     void setDirty();
     void setModelMatrix(glm::mat4 mat);
     void setColor(glm::vec3 col);
+    GLuint getViewMatrixLocation() { return viewMatrixLoc; }
+    GLuint getProjMatrixLocation() { return projMatrixLoc; }
 protected:
     friend class Model;
 
@@ -119,7 +121,9 @@ protected:
     void loadMesh();
     bool loadShaders();
 
+    void preRender();
     void renderMe();
+    void postRender();
 
     bool createSHADER(std::string shader_code, GLenum type, GLuint &id);
     void attachSHADERPROG();
@@ -128,13 +132,14 @@ protected:
 private:
     // OpenGL context data
     MeshReference ref;
+    GLuint viewMatrixLoc, projMatrixLoc;
     // OpenGL shaders
     MeshShaderReference shaders;
     // Mesh data
     std::vector<glm::vec3> vertices;
     std::vector<GLuint> indices;
-    MeshProperty<glm::mat4> model_matrix;
-    MeshProperty<glm::vec3> color;
+    Property<glm::mat4> model_matrix;
+    Property<glm::vec3> color;
 };
 
 #endif // MESH_H

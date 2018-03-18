@@ -2,8 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QTimer>
-
 #include "glwidget.h"
 #include "scene.h"
 
@@ -20,14 +18,11 @@ public:
     void init();
 private slots:
     void on_pushButton_clicked();
-
+    void keyPressEvent(QKeyEvent *event);
 private:
     Ui::MainWindow *ui;
     GLWidget *widget;
     Scene *scene;
-
-    //Temp
-    QTimer *timer;
 };
 
 #endif // MAINWINDOW_H

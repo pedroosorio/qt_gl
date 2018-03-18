@@ -1,5 +1,4 @@
 #include "mesh.h"
-#include "qopengl.h"
 
 extern QOpenGLFunctions_4_0_Core *GLctx;
 
@@ -122,8 +121,9 @@ bool Mesh::loadShaders()
     GLctx->glAttachShader(shaders.m_shader_prog, shaders.m_vertex_shader);
     GLctx->glAttachShader(shaders.m_shader_prog, shaders.m_frag_shader);
     GLctx->glBindAttribLocation(shaders.m_shader_prog, MMAT_IDX, MMAT_VARNAME);
-    GLctx->glBindAttribLocation(shaders.m_shader_prog, BCOLOR_IDX, BCOLOR_VARNAME);
-
+    GLctx->glBindAttribLocation(shaders.m_shader_prog, MCOLOR_IDX, MCOLOR_VARNAME);
+    GLctx->glBindAttribLocation(shaders.m_shader_prog, VMAT_IDX, VMAT_VARNAME);
+    GLctx->glBindAttribLocation(shaders.m_shader_prog, PMAT_IDX, PMAT_VARNAME);
     // Link and verify linkage
     GLctx->glLinkProgram(shaders.m_shader_prog);
     GLint isLinked = 0;
@@ -143,11 +143,13 @@ bool Mesh::loadShaders()
 
     // Retrieve final location of model matrix uniform
     model_matrix.setUniformLocation(GLctx->glGetUniformLocation(shaders.m_shader_prog, MMAT_VARNAME));
-    color.setUniformLocation(GLctx->glGetUniformLocation(shaders.m_shader_prog, BCOLOR_VARNAME));
+    color.setUniformLocation(GLctx->glGetUniformLocation(shaders.m_shader_prog, MCOLOR_VARNAME));
+    viewMatrixLoc = GLctx->glGetUniformLocation(shaders.m_shader_prog, VMAT_VARNAME);
+    projMatrixLoc = GLctx->glGetUniformLocation(shaders.m_shader_prog, PMAT_VARNAME);
     return true;
 }
 
-void Mesh::renderMe()
+void Mesh::preRender()
 {
     bindVAO();
     GLctx->glEnableVertexAttribArray(VERTEX_VAO_IDX);
@@ -155,11 +157,17 @@ void Mesh::renderMe()
 
     model_matrix.update();
     color.update();
+}
 
+void Mesh::renderMe()
+{
     if(indices.size()){
         GLctx->glDrawElements( GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, (void*)0);
     } else GLctx->glDrawArrays(GL_TRIANGLES, 0, ref.m_vertCount);
+}
 
+void Mesh::postRender()
+{
     GLctx->glDisableVertexAttribArray(VERTEX_VAO_IDX);
     detachSHADERPROG();
     unbindVAO();
@@ -278,22 +286,22 @@ void Mesh::cleanSHADERPROG()
 // ---------------------------------------------------
 
 template<typename T>
-void MeshProperty<T>::loadUniform(GLuint loc, bool val)
+void Property<T>::loadUniform(GLuint loc, bool val)
 {
     GLctx->glUniform1f(loc, val*1.0f);
 }
 template<typename T>
-void MeshProperty<T>::loadUniform(GLuint loc, float val)
+void Property<T>::loadUniform(GLuint loc, float val)
 {
     GLctx->glUniform1f(loc, val);
 }
 template<typename T>
-void MeshProperty<T>::loadUniform(GLuint loc, glm::vec3 val)
+void Property<T>::loadUniform(GLuint loc, glm::vec3 val)
 {
     GLctx->glUniform3f(loc, val.x, val.y, val.z);
 }
 template<typename T>
-void MeshProperty<T>::loadUniform(GLuint loc, glm::mat4 val)
+void Property<T>::loadUniform(GLuint loc, glm::mat4 val)
 {
     GLctx->glUniformMatrix4fv(loc, 1, GL_FALSE, &val[0][0]);
 }
