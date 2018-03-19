@@ -1,6 +1,6 @@
 #include "glwidget.h"
 
-#define REQUIRED_RENDER_PERIOD 16
+#define REQUIRED_RENDER_PERIOD 17
 extern QOpenGLFunctions_4_0_Core *GLctx;
 
 GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
@@ -14,6 +14,10 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
     setFormat(format);
     GLctx = this;
     scene = nullptr;
+
+    // Freetype setup
+    FT_Error error = FT_Init_FreeType(&library);
+    if ( error ) qDebug() << "Failed to init FreeType with error:" << error;
 }
 
 void GLWidget::setScene(Scene *s)
@@ -61,7 +65,9 @@ void GLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if(!scene) { glClearColor(1.0, 1.0, 1.0, 1.0); return; }
     scene->renderScene();
-    renderTimer.start(REQUIRED_RENDER_PERIOD);
+    elapsed -= REQUIRED_RENDER_PERIOD;
+    if(elapsed < 0) elapsed = 0;
+    renderTimer.start(elapsed);
 }
 
 void GLWidget::resizeGL(int width, int height)

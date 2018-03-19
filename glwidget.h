@@ -13,6 +13,9 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "scene.h"
+#include "ft2build.h"
+#include FT_FREETYPE_H
+#include "freetype/freetype.h"
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core
 {
@@ -31,6 +34,9 @@ private:
     QTimer renderTimer;
     QElapsedTimer timer;
     float avgFPS;
+    // Freetype variables
+    FT_Library library;
+    FT_Face face;
 };
 
 #endif // GLWIDGET_H
