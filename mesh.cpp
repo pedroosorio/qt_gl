@@ -19,6 +19,27 @@ Mesh::Mesh() : model_matrix("model_matrix"), color("color")
     //setup mesh gl
     ref.m_vao = ref.m_vertCount = ref.m_vert_vbo = 0;
     shaders.m_frag_shader = shaders.m_vertex_shader = shaders.m_shader_prog = 0;
+    ref.m_vertCount = static_cast<int32_t>(vertices.size());
+
+    model_matrix.setProperty(glm::translate(glm::mat4(), glm::vec3(0.0f , 0.0f , 0.0f)) *
+                            glm::yawPitchRoll(0.0f, 0.0f, 0.0f)*
+                            glm::scale(glm::mat4(), glm::vec3(1.0f , 1.0f , 1.0f)));
+    color.setProperty(glm::vec3(0.5, 0.5, 0.5));
+}
+
+Mesh::~Mesh()
+{
+    cleanVAO();
+    cleanSHADERPROG();
+}
+
+void Mesh::Cube()
+{
+    vertices.clear();
+    indices.clear();
+    uvs.clear();
+    normals.clear();
+    faces.clear();
 
     //simple cube mesh
     glm::vec3 cube_vertices[] = {
@@ -70,19 +91,6 @@ Mesh::Mesh() : model_matrix("model_matrix"), color("color")
 
     vertices = std::vector<glm::vec3>(cube_vertices, cube_vertices + sizeof(cube_vertices) / sizeof(glm::vec3));
     indices = std::vector<GLuint>(cube_indices, cube_indices + sizeof(cube_indices) / sizeof(GLuint));
-
-    ref.m_vertCount = static_cast<int32_t>(vertices.size());
-
-    model_matrix.setProperty(glm::translate(glm::mat4(), glm::vec3(0.0f , 0.0f , 0.0f)) *
-                            glm::yawPitchRoll(0.0f, 0.0f, 0.0f)*
-                            glm::scale(glm::mat4(), glm::vec3(1.0f , 1.0f , 1.0f)));
-    color.setProperty(glm::vec3(0.5, 0.5, 0.5));
-}
-
-Mesh::~Mesh()
-{
-    cleanVAO();
-    cleanSHADERPROG();
 }
 
 // ---------------------------------------------------
@@ -101,6 +109,14 @@ void Mesh::setModelMatrix(glm::mat4 mat)
 void Mesh::setColor(glm::vec3 col)
 {
     color.setProperty(col);
+}
+
+void Mesh::printData()
+{
+    qDebug() << "Indices:";
+    for(auto idx: indices){
+        qDebug() << ":" << idx;
+    }
 }
 
 // ---------------------------------------------------

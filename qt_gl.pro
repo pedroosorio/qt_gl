@@ -35,7 +35,8 @@ SOURCES += \
     renderengine.cpp \
     scene.cpp \
     camera.cpp \
-    model.cpp
+    model.cpp \
+    objloader.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -46,6 +47,7 @@ HEADERS += \
     camera.h \
     model.h \
     context.h \
+    objloader.h \
     objloader.h
 
 FORMS += \

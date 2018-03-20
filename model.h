@@ -9,7 +9,6 @@ class Model
 {
 
 public:
-    Model(std::vector<glm::vec3> vertex_data);
     Model(std::string obj_file_path);
     ~Model();
 

@@ -35,18 +35,22 @@
 std::string read_qrc_file(std::string qrc);
 // -----------------
 
-typedef struct MeshReference{
+typedef struct _MeshReference{
     GLuint m_vao;
     int32_t m_vertCount;
     GLuint m_vert_vbo;
     GLuint m_idx_vbo;
 } MeshReference;
 
-typedef struct MeshShaderReference{
+typedef struct _MeshShaderReference{
     GLuint m_vertex_shader;
     GLuint m_frag_shader;
     GLuint m_shader_prog;
 } MeshShaderReference;
+
+typedef struct _MeshFace{
+    glm::vec3 p[3];
+} MeshFace;
 
 template <typename T>
 class Property{
@@ -95,6 +99,7 @@ class Mesh
 public:
     Mesh();
     ~Mesh();
+    void Cube();
 
     // Mesh information getters
     int32_t getVAO() { return ref.m_vao; }
@@ -105,10 +110,12 @@ public:
     void setDirty();
     void setModelMatrix(glm::mat4 mat);
     void setColor(glm::vec3 col);
+    void printData();
     GLuint getViewMatrixLocation() { return viewMatrixLoc; }
     GLuint getProjMatrixLocation() { return projMatrixLoc; }
 protected:
     friend class Model;
+    friend class OBJLoader;
 
     // Mesh GL functions
     void createVAO();
@@ -129,17 +136,22 @@ protected:
     void attachSHADERPROG();
     void detachSHADERPROG();
     void cleanSHADERPROG();
-private:
-    // OpenGL context data
-    MeshReference ref;
-    GLuint viewMatrixLoc, projMatrixLoc;
-    // OpenGL shaders
-    MeshShaderReference shaders;
+
     // Mesh data
     std::vector<glm::vec3> vertices;
     std::vector<GLuint> indices;
+    std::vector<glm::vec2> uvs;
+    std::vector<glm::vec3> normals;
+    std::vector<MeshFace> faces;
+private:
+    // OpenGL context data
+    MeshReference ref;
+    // OpenGL shaders
+    MeshShaderReference shaders;
+    // Shader Mesh Data
     Property<glm::mat4> model_matrix;
     Property<glm::vec3> color;
+    GLuint viewMatrixLoc, projMatrixLoc;
 };
 
 #endif // MESH_H

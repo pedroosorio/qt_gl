@@ -2,17 +2,12 @@
 
 extern QOpenGLFunctions_4_0_Core *GLctx;
 
-Model::Model(std::vector<glm::vec3> vertex_data)
-{
-    mesh = new Mesh();
-    Common();
-}
-
 Model::Model(std::string obj_file_path)
 {
-    objl::Loader loader;
-    if(!loader.LoadFile(obj_file_path)) qDebug() << "Failed to load obj from" << obj_file_path.c_str();
     mesh = new Mesh();
+    OBJLoader loader(mesh);
+    qDebug() << "Loaded OBJ: " << loader.LoadOBJ(obj_file_path);
+    //mesh->Cube();
     Common();
 }
 
