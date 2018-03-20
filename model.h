@@ -5,6 +5,12 @@
 #include "camera.h"
 #include "mesh.h"
 
+typedef struct _BoundingBox{
+    glm::vec2 tb;
+    glm::vec2 rl;
+    glm::vec2 fb;
+} BoundingBox;
+
 class Model
 {
 
@@ -26,6 +32,7 @@ public:
     void updateModel();
     void render(Camera *camera);
     bool init();
+    void initBoundingBox();
     void setColor(glm::vec3 color);
 protected:
     void Common();
@@ -37,6 +44,8 @@ private:
     glm::vec3 position;
     glm::vec3 rotation;
     glm::vec3 scale;
+    BoundingBox bbox;
+    // Aux
     bool dirty_matrix;
 };
 

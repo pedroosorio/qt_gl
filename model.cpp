@@ -7,7 +7,6 @@ Model::Model(std::string obj_file_path)
     mesh = new Mesh();
     OBJLoader loader(mesh);
     qDebug() << "Loaded OBJ: " << loader.LoadOBJ(obj_file_path);
-    //mesh->Cube();
     Common();
 }
 
@@ -18,7 +17,7 @@ Model::~Model()
 
 void Model::Common()
 {
-    position = glm::vec3(0.0, 0.0, 0.0);
+    initBoundingBox(); //Position is initialized by the bounding box result
     rotation = glm::vec3(0.0, 0.0, 0.0);
     scale = glm::vec3(1.0, 1.0, 1.0);
     updateModel();
@@ -113,6 +112,26 @@ bool Model::init()
     mesh->loadMesh();
     if(!mesh->loadShaders()) return false;
     return true;
+}
+
+void Model::initBoundingBox()
+{
+    bbox.tb.x = -1000000.0; bbox.tb.y = 1000000.0;
+    bbox.rl.x = -1000000.0; bbox.rl.y = 1000000.0;
+    bbox.tb.x = -1000000.0; bbox.tb.y = 1000000.0;
+    for(auto vertex: mesh->vertices){
+        if(vertex.x > bbox.rl.x) bbox.rl.x = vertex.x;
+        if(vertex.x < bbox.rl.y) bbox.rl.y = vertex.x;
+        if(vertex.y > bbox.tb.x) bbox.tb.x = vertex.y;
+        if(vertex.y < bbox.tb.y) bbox.tb.y = vertex.y;
+        if(vertex.z > bbox.fb.x) bbox.fb.x = vertex.z;
+        if(vertex.z < bbox.fb.y) bbox.fb.y = vertex.z;
+    }
+    qDebug() << "Model Bounding Box:";
+    qDebug() << "\tRight Left->" << bbox.rl.x << bbox.rl.y;
+    qDebug() << "\tTop Bottom->" << bbox.tb.x << bbox.tb.y;
+    qDebug() << "\tFront Back->" << bbox.fb.x << bbox.fb.y;
+
 }
 
 void Model::setColor(glm::vec3 color)
