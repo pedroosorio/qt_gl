@@ -27,9 +27,9 @@ MainWindow::~MainWindow()
 void MainWindow::init()
 {
     scene = new Scene();
-    Model *model = new Model("C:\\Users\\posorio\\Desktop\\cube.obj");
-
     widget->setScene(scene);
+
+    Model *model = new Model("C:\\Users\\posorio\\Desktop\\teapot.obj");
     scene->attachModel(model);
 }
 

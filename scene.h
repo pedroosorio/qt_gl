@@ -13,14 +13,18 @@ class Scene
 public:
     Scene();
     ~Scene();
+    void init();
 
     void attachModel(Model *model);
     void renderScene();
-    void init();
+
     Model *getModel(int idx);
     Camera *getCamera();
-    void translateCameraBy(glm::vec3 t);
+
     void setCamerasAspectRatio(float as);
+
+    // Temporary Function, will be replaced by a CameraController class
+    void translateCameraBy(glm::vec3 t);
 private:
     RenderEngine engine;
     std::vector<Model *> models;

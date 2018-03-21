@@ -2,8 +2,8 @@
 #define MODEL_H
 
 #include "objloader.h"
-#include "camera.h"
 #include "mesh.h"
+#include "property.h"
 
 typedef struct _BoundingBox{
     glm::vec2 tb;
@@ -18,6 +18,9 @@ public:
     Model(std::string obj_file_path);
     ~Model();
 
+    //TODO:Remove this
+    Mesh *getMesh() {return mesh; }
+
     void translateBy(glm::vec3 dt);
     void rotateBy(glm::vec3 dr);
     void scaleBy(glm::vec3 ds);
@@ -28,25 +31,26 @@ public:
     glm::vec3 getModelRotation();
     void setModelScale(glm::vec3 new_scale);
     glm::vec3 getModelScale();
+    void setColor(glm::vec3 col);
+    void setUniformLocations(GLuint mmat_loc, GLuint col_loc);
 
-    void updateModel();
-    void render(Camera *camera);
+    void updateModelMatrix();
+    void render();
     bool init();
     void initBoundingBox();
-    void setColor(glm::vec3 color);
 protected:
     void Common();
-    void setDirtyMatrix();
 private:
     // OpenGL context data
+    std::string mesh_path;
     Mesh *mesh;
     // Model data
     glm::vec3 position;
     glm::vec3 rotation;
     glm::vec3 scale;
+    Property<glm::mat4> model_matrix;
+    Property<glm::vec3> color;
     BoundingBox bbox;
-    // Aux
-    bool dirty_matrix;
 };
 
 #endif // MODEL_H

@@ -36,7 +36,8 @@ SOURCES += \
     scene.cpp \
     camera.cpp \
     model.cpp \
-    objloader.cpp
+    objloader.cpp \
+    shaders.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -48,7 +49,8 @@ HEADERS += \
     model.h \
     context.h \
     objloader.h \
-    objloader.h
+    property.h \
+    shaders.h
 
 FORMS += \
         mainwindow.ui

@@ -5,8 +5,8 @@ QOpenGLFunctions_4_0_Core* GLctx;
 Camera::Camera(): viewMatrix("view_matrix"), projMatrix("proj_matrix")
 {
     fov = 45.0;
-    aspectRatio = 4.0/3.0;
-    m_pos = glm::vec3(0.0,0.0,-2.0f);
+    aspectRatio = static_cast<float>(4.0/3.0);
+    m_pos = glm::vec3(0.0,0.0,-1.7f);
     m_reset_pos = m_pos;
     m_orient = glm::toQuat(glm::orientate3(glm::vec3(0.0, 0.0, 0.0)));
     updateViewMatrix();
@@ -16,7 +16,7 @@ Camera::Camera(): viewMatrix("view_matrix"), projMatrix("proj_matrix")
 Camera::Camera(glm::vec3 position, glm::quat orientation): viewMatrix("view_matrix"), projMatrix("proj_matrix")
 {
     fov = 60.0;
-    aspectRatio = 4.0/3.0;
+    aspectRatio = static_cast<float>(4.0/3.0);
     m_pos = position;
     m_reset_pos = m_pos;
     m_orient = orientation;
@@ -116,6 +116,5 @@ glm::vec3 Camera::getRotation()
 {
     return glm::eulerAngles(m_orient);
 }
-
 
 // ---------------------------------------------------

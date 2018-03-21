@@ -7,7 +7,7 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/euler_angles.hpp"
-#include "mesh.h"
+#include "property.h"
 
 class Camera {
 public:
@@ -22,6 +22,7 @@ public:
     void setPose(glm::vec3 position, glm::quat orientation);
     void reset();
     void lookAt(glm::vec3 look_at);
+
     void updateViewMatrix();
     void setViewMatrixUniformLocation(GLuint location);
 
@@ -36,12 +37,11 @@ public:
     glm::vec3 getRotation();
     glm::mat4 getCameraMatrix();
 private:
-    glm::vec3 m_pos, m_reset_pos;;
+    glm::vec3 m_pos, m_reset_pos;
     glm::quat m_orient;
     Property<glm::mat4> viewMatrix;
     Property<glm::mat4> projMatrix;
     float fov;
     float aspectRatio;
-    //Mesh *mesh;
 };
 #endif // CAMERA_H

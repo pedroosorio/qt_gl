@@ -100,6 +100,7 @@ bool OBJLoader::parseLine(std::string& line)
     if(command == "vt") { ret = parseUVEntry(line_args); has_uv_data = true; return ret; }
     if(command == "vn") { ret = parseNormalEntry(line_args); has_normal_data = true; return ret; }
     if(command == "f") { ret = parseFaceEntry(line_args); has_face_data = true; return ret; }
+    return ret;
 }
 
 bool OBJLoader::parseVectorEntry(std::vector<std::string> &line_args)

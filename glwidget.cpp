@@ -74,7 +74,7 @@ void GLWidget::resizeGL(int width, int height)
 {
     float retinaScale = devicePixelRatio();
     glViewport(GLint(0), GLint(0), GLsizei(width * retinaScale), GLsizei(height * retinaScale));
-    scene->getCamera()->setAspectRatio(float(width)/float(height));
+    scene->setCamerasAspectRatio(float(width)/float(height));
 }
 
 // ---------------------------------------------------

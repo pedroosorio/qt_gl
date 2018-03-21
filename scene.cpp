@@ -26,6 +26,7 @@ void Scene::renderScene()
 
 void Scene::init()
 {
+    engine.init();
     for(auto model: models){
         model->init();
     }
