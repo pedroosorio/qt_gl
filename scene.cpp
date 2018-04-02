@@ -43,12 +43,39 @@ Camera *Scene::getCamera()
     return &camera;
 }
 
-void Scene::translateCameraBy(glm::vec3 t)
-{
-    camera.setPosition(camera.getPosition()+t);
-}
-
 void Scene::setCamerasAspectRatio(float as)
 {
     camera.setAspectRatio(as);
+}
+
+void Scene::onKeyPress(QKeyEvent *event)
+{
+    return;
+}
+
+void Scene::onKeyRelease(QKeyEvent *event)
+{
+    return;
+}
+
+void Scene::onDoubleClick(QMouseEvent *event)
+{
+    return;
+}
+
+//Pass the important info to the camera controller, so he can
+//implement the control of the camera, be it FPS, 3rd Person ...
+void Scene::onMouseMove(QMouseEvent *event)
+{
+
+}
+
+void Scene::onMousePress(QMouseEvent *event)
+{
+
+}
+
+void Scene::onMouseRelease(QMouseEvent *event)
+{
+
 }

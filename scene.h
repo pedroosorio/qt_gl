@@ -7,6 +7,9 @@
 #include "model.h"
 #include "camera.h"
 #include "renderengine.h"
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QEvent>
 
 class Scene
 {
@@ -22,9 +25,14 @@ public:
     Camera *getCamera();
 
     void setCamerasAspectRatio(float as);
-
-    // Temporary Function, will be replaced by a CameraController class
-    void translateCameraBy(glm::vec3 t);
+public slots:
+    // Event handlers
+    void onKeyPress(QKeyEvent *event);
+    void onKeyRelease(QKeyEvent *event);
+    void onDoubleClick(QMouseEvent *event);
+    void onMouseMove(QMouseEvent *event);
+    void onMousePress(QMouseEvent *event);
+    void onMouseRelease(QMouseEvent *event);
 private:
     RenderEngine engine;
     std::vector<Model *> models;

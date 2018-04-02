@@ -29,6 +29,14 @@ protected:
     void initializeGL();
     void paintGL();
     void resizeGL(int width, int height);
+public slots:
+    // Input handler events
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 private:
     Scene *scene;
     QTimer renderTimer;

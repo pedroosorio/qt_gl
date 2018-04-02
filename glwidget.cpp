@@ -78,3 +78,40 @@ void GLWidget::resizeGL(int width, int height)
 }
 
 // ---------------------------------------------------
+
+// TODO: Add some kind of event abstraction layer here
+void GLWidget::keyPressEvent(QKeyEvent *event)
+{
+    if(scene) scene->onKeyPress(event);
+    event->accept();
+}
+
+void GLWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    if(scene) scene->onKeyRelease(event);
+    event->accept();
+}
+
+void GLWidget::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if(scene) scene->onDoubleClick(event);
+    event->accept();
+}
+
+void GLWidget::mousePressEvent(QMouseEvent *event)
+{
+    if(scene) scene->onMousePress(event);
+    event->accept();
+}
+
+void GLWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(scene) scene->onMouseRelease(event);
+    event->accept();
+}
+
+void GLWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if(scene) scene->onMouseMove(event);
+    event->accept();
+}
